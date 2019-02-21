@@ -40,6 +40,29 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// Get all students in a cohort
+router.get("/:id/students", async (req, res) => {
+  try {
+    const cohortSutdents = await db("students as s")
+      .join("cohorts as c", "c.id", "s.cohort_id")
+      .select("s.id", "s.name", "c.name as cohort")
+      .where("s.cohort_id", req.params.id);
+    if (cohortSutdents) {
+      res.status(200).json(cohortSutdents);
+    } else {
+      res.status(404).json({
+        message: "The cohort with the specified ID does not exist."
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+      message: "Failed to retrieve cohort data"
+    });
+  }
+});
+
 // Create new cohort
 router.post("/", async (req, res) => {
   try {
